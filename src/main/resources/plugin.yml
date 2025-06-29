@@ -1,0 +1,41 @@
+name: DailyShop
+version: '1.0'
+main: org.dailyshop.DailyShopPlugin
+api-version: '1.21'
+authors: [ Ouistitiw ]
+description: A daily shop system with rotating NPC merchants
+
+commands:
+  dailyshop:
+    description: Commande principale regroupant toutes les fonctionnalités
+    usage: /<command> <open|menu|giveitem|reload|rotate>
+    permission: dailyshop.use
+
+  sell:
+    description: Vendre des objets du shop du jour
+    usage: /sell <hand|handall|all>
+    permission: dailyshop.sell
+
+  shop:
+    description: Alias configurable pour /dailyshop open
+  boutique:
+    description: Alias configurable pour /dailyshop open
+  market:
+    description: Alias configurable pour /dailyshop open
+  dshop:
+    description: Alias configurable pour /dailyshop open
+
+
+permissions:
+  dailyshop.use:
+    default: true
+
+  dailyshop.admin:
+    default: op
+
+  dailyshop.sell:
+    default: true
+
+  dailyshop.preview:
+    description: Autorise à utiliser la commande /shop preview
+    default: false

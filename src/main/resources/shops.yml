@@ -1,0 +1,150 @@
+shops:
+  shop1:
+    name: "Bob L'infécondable"
+    skin: "waitzar"
+    items:
+      - material: BAMBOO
+        price: 0.01
+      - material: NETHER_STAR
+        price: 1000.0
+      - material: PORKCHOP
+        price: 4.0
+      - material: POPPY
+        price: 10.0
+      - material: COOKIE
+        price: 3.0
+
+  shop2:
+    name: "John L'interrompu"
+    skin: "GamerWills"
+    items:
+      - material: IRON_INGOT
+        price: 10.0
+      - material: CARROT
+        price: 5.0
+      - material: DIAMOND
+        price: 30.0
+      - material: CACTUS
+        price: 4.5
+      - material: ARMADILLO_SCUTE
+        price: 5.0
+
+  shop3:
+    name: "Mémé Ragnagna"
+    skin: "Granny77"
+    items:
+      - material: BONE
+        price: 2.0
+      - material: ROTTEN_FLESH
+        price: 0.3
+      - material: FERMENTED_SPIDER_EYE
+        price: 6.66
+      - material: MILK_BUCKET
+        price: 8.0
+      - material: SWEET_BERRIES
+        price: 4.0
+
+  shop4:
+    name: "Carlos le Chauffagiste"
+    skin: "Technoblade"
+    items:
+      - material: LAVA_BUCKET
+        price: 20.0
+      - material: COAL
+        price: 3.0
+      - material: FIRE_CHARGE
+        price: 12.0
+      - material: MAGMA_BLOCK
+        price: 6.0
+      - material: SMOKER
+        price: 30.0
+
+  shop5:
+    name: "Le Serpent d'Azur"
+    skin: "BlueViper"
+    items:
+      - material: BLUE_DYE
+        price: 4.0
+      - material: LAPIS_LAZULI
+        price: 6.0
+      - material: PRISMARINE_SHARD
+        price: 8.0
+      - material: ICE
+        price: 3.0
+      - material: DIAMOND_SWORD
+        price: 250.0
+
+  shop6:
+    name: "Zorg le Scientifique"
+    skin: "Ineamosa"
+    items:
+      - material: REDSTONE
+        price: 2.0
+      - material: OBSERVER
+        price: 20.0
+      - material: PISTON
+        price: 15.0
+      - material: DISPENSER
+        price: 18.0
+      - material: SLIME_BLOCK
+        price: 25.0
+
+  shop7:
+    name: "Jacques Moustache"
+    skin: "VintageBeef"
+    items:
+      - material: LEATHER
+        price: 4.0
+      - material: FISHING_ROD
+        price: 10.0
+      - material: SALMON
+        price: 3.0
+      - material: BOOK
+        price: 6.0
+      - material: NAME_TAG
+        price: 25.0
+
+  shop8:
+    name: "Gustave la Graine"
+    skin: "jkmartindale"
+    items:
+      - material: WHEAT_SEEDS
+        price: 0.1
+      - material: SWEET_BERRIES
+        price: 2
+      - material: BONE_MEAL
+        price: 1.0
+      - material: DIRT
+        price: 0.1
+      - material: FLOWERING_AZALEA
+        price: 5.0
+
+  shop9:
+    name: "Norbert la Nébuleuse"
+    skin: "PurpleNebula"
+    items:
+      - material: END_STONE
+        price: 8.0
+      - material: CHORUS_FRUIT
+        price: 6.0
+      - material: KELP
+        price: 3.0
+      - material: ENDER_PEARL
+        price: 0.02
+      - material: DRAGON_BREATH
+        price: 60.0
+
+  shop10:
+    name: "Le Braconnier masqué"
+    skin: "DarkHunterX"
+    items:
+      - material: RABBIT_FOOT
+        price: 10.0
+      - material: TURTLE_SCUTE
+        price: 25.0
+      - material: SPIDER_EYE
+        price: 3.0
+      - material: TRIDENT
+        price: 500.0
+      - material: CROSSBOW
+        price: 60.0

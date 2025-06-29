@@ -1,0 +1,23 @@
+# ID of the clickable npc for shop (Fancy NPC)
+npc-name: Shop
+
+# Heure du reset quotidien (format HH:mm) ou null pour désactiver
+daily-reset-time: "04:00"
+
+# OU, si tu préfères une fréquence toutes les X heures (remplace daily-reset-time: null)
+reset-every-hours: 24
+
+# Aliases dynamiques
+aliases:
+  open: shop
+  sell: vendre
+
+# Rotation automatique (facultatif)
+rotation:
+  enabled: true
+  daily-hour: 6
+
+# Persistance de la dernière rotation
+last-rotation-date: ""
+current-shop-key: ""
+next-shop-key: ""

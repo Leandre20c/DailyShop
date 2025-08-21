@@ -17,6 +17,7 @@ public class FancyNpcsReadyListener implements Listener {
     public void onNpcsLoaded(NpcsLoadedEvent event) {
         if (plugin.getNpcManager().loadNPC()) {
             plugin.getLogger().info("✅ NPC Manager initialisé après le chargement de FancyNPCs.");
+            plugin.getNpcManager().applyCurrentShop();
         } else {
             plugin.getLogger().severe("❌ Impossible de charger le NPC FancyNPCs !");
         }

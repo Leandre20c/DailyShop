@@ -3,6 +3,8 @@ package org.dailyshop.managers;
 import de.oliver.fancynpcs.api.FancyNpcsPlugin;
 import de.oliver.fancynpcs.api.Npc;
 import de.oliver.fancynpcs.api.NpcData;
+import de.oliver.fancynpcs.api.skins.SkinData;
+import de.oliver.fancynpcs.api.skins.SkinData.SkinVariant;
 import org.dailyshop.DailyShopPlugin;
 import org.dailyshop.model.Shop;
 
@@ -28,12 +30,16 @@ public class NPCManager {
         }
 
         Npc found = null;
-        // 1) Essayer comme un ID
         try {
             int id = Integer.parseInt(ident);
             found = FancyNpcsPlugin.get().getNpcManager().getNpc(id);
-        } catch (NumberFormatException ignored) {
-            // pas un nombre → on traitera comme un nom
+        } catch (NumberFormatException ignored) {}
+
+        if (found == null) {
+            found = FancyNpcsPlugin.get().getNpcManager().getAllNpcs().stream()
+                    .filter(n -> n.getData().getName().equalsIgnoreCase(ident))
+                    .findFirst()
+                    .orElse(null);
         }
 
         if (found == null) {
@@ -41,15 +47,14 @@ public class NPCManager {
             return false;
         }
 
-        this.npc  = found;
+        this.npc = found;
         this.data = npc.getData();
-        plugin.getLogger().info("NPC chargé : " + data.getName() + " (" + data.getDisplayName() + ")");
+        plugin.getLogger().info("✅ NPC chargé : " + data.getName() + " (" + data.getDisplayName() + ")");
         return true;
     }
 
     /**
-     * Met à jour le nom et le skin du NPC selon le shop courant,
-     * puis rafraîchit tous les clients.
+     * Met à jour le nom et le skin du NPC selon le shop courant.
      */
     public void applyCurrentShop() {
         if (npc == null) {
@@ -63,19 +68,22 @@ public class NPCManager {
             return;
         }
 
-        // 1) Met à jour le nom affiché
         data.setDisplayName(current.getName());
 
-        // 2) Met à jour le skin
-        data.setSkin(current.getSkin());
+        if (current.getSkin() != null && !current.getSkin().isEmpty()) {
+            SkinData skin = FancyNpcsPlugin.get().getSkinManager().getByUsername(current.getSkin(), SkinVariant.AUTO);
+            if (skin != null) {
+                data.setSkinData(skin);
+                plugin.getLogger().info("✅ Skin appliqué depuis le pseudo : " + current.getSkin());
+            } else {
+                plugin.getLogger().warning("❌ Skin introuvable pour le pseudo : " + current.getSkin());
+            }
+        }
 
-        // 3) Rafraîchit le NPC pour tous les joueurs
         npc.updateForAll();
-
         npc.removeForAll();
         npc.spawnForAll();
 
-        plugin.getLogger().info("✅ NPC mis à jour – Shop : "
-                + current.getName() + ", Skin : " + current.getSkin());
+        plugin.getLogger().info("✅ NPC mis à jour – Shop : " + current.getName());
     }
 }

@@ -1,10 +1,16 @@
 package org.dailyshop.managers;
 
 import dev.lone.itemsadder.api.ItemsAdder;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.dailyshop.DailyShopPlugin;
 import org.dailyshop.model.Shop;
 import org.dailyshop.model.ShopItem;
+import org.simpleskills.api.SkillsAPI;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,31 +18,12 @@ import java.util.Map;
 
 public class SellManager {
 
-    /**
-     * Retourne une map des ShopItem vendus et leur quantité, en retirant les items du tableau donné
-     * @param inventory Contenu du coffre ou inventaire
-     * @param shop Shop de référence pour connaître les prix
-     * @return map de ShopItem → quantité vendue
-     */
-    public Map<ShopItem, Integer> sellItems(ItemStack[] inventory, Shop shop) {
-        Map<ShopItem, Integer> result = new HashMap<>();
-        List<ShopItem> shopItems = shop.getItems();
+    private final Economy economy;
+    private final DailyShopPlugin plugin;
 
-        for (int i = 0; i < inventory.length; i++) {
-            ItemStack item = inventory[i];
-            if (item == null) continue;
-
-            for (ShopItem shopItem : shopItems) {
-                if (shopItem.getMaterial() == item.getType()) {
-                    int quantity = item.getAmount();
-                    result.put(shopItem, result.getOrDefault(shopItem, 0) + quantity);
-                    inventory[i] = null; // Retirer l'item
-                    break;
-                }
-            }
-        }
-
-        return result;
+    public SellManager(DailyShopPlugin plugin, Economy economy){
+        this.economy = economy;
+        this.plugin = plugin;
     }
 
     /**
@@ -85,4 +72,62 @@ public class SellManager {
 
         return total;
     }
+
+    public void payAndRecord(Player player, Map<ShopItem, Integer> sold) {
+        double total = calculateTotal(sold);
+        if (total <= 0) return;
+
+        // paiement
+        double skillBoost = applySkillsBoost(player, total);
+        economy.depositPlayer(player, total);
+        economy.depositPlayer(player, skillBoost);
+
+        // enregistrement des ventes -> stats
+        for (Map.Entry<ShopItem, Integer> entry : sold.entrySet()) {
+            ShopItem item = entry.getKey();
+            int quantity = entry.getValue();
+            double price = item.getPrice() * quantity;
+            String itemId = item.isCustom()
+                    ? item.getCustomId()
+                    : item.getMaterial().name();
+            plugin.getStatsManager().recordSale(player.getName(), itemId, quantity, price);
+        }
+
+        // message joueur
+        if (skillBoost > 0){
+            player.sendMessage("§aVous avez vendu pour §e" + total + " PE &a+ §e" + skillBoost + " PE §agrâce aux skills.");
+        }
+        else {
+            player.sendMessage("§aVous avez vendu pour §e" + Math.round(total * 10.0) / 10.0 + " PE");
+        }
+    }
+
+    public Map<ShopItem, Integer> collectSellableItems(Inventory inv, Shop shop) {
+        Map<ShopItem, Integer> result = new HashMap<>();
+
+        for (ItemStack item : inv.getContents()) {
+            if (item == null || item.getType() == Material.AIR) continue;
+
+            for (ShopItem shopItem : shop.getItems()) {
+                if (shopItem.matches(item)) {
+                    int amount = item.getAmount();
+                    result.merge(shopItem, amount, Integer::sum);
+                    inv.remove(item); // retire directement du coffre
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public double applySkillsBoost(Player player, double sold){
+        int skillBoostLevel = SkillsAPI.getLevel(player, "wealth");
+        if (!SkillsAPI.isSkillEnabled(player, "wealth")){
+            return 0;
+        }
+
+        return (sold * (skillBoostLevel * 0.005));
+    }
+
 }

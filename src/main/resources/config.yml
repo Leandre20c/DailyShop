@@ -12,11 +12,6 @@ aliases:
   open: shop
   sell: vendre
 
-# Rotation automatique (facultatif)
-rotation:
-  enabled: true
-  daily-hour: 6
-
 # Persistance de la dernière rotation
 last-rotation-date: ""
 current-shop-key: ""

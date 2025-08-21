@@ -12,6 +12,7 @@ import org.dailyshop.managers.NPCManager;
 import org.dailyshop.managers.ShopManager;
 import org.dailyshop.managers.MenuManager;
 import org.dailyshop.managers.SellManager;
+import org.dailyshop.statistics.StatsManager;
 import org.dailyshop.tasks.ShopRotationTask;
 
 import java.io.File;
@@ -26,6 +27,7 @@ public final class DailyShopPlugin extends JavaPlugin {
     private MenuManager menuManager;
     private SellManager sellManager;
     private Economy economy;
+    private StatsManager statsManager;
 
     public static DailyShopPlugin getInstance() {
         return instance;
@@ -39,10 +41,8 @@ public final class DailyShopPlugin extends JavaPlugin {
             return;
         }
 
-        if (Bukkit.getPluginManager().getPlugin("Citizens") == null
-                || !Bukkit.getPluginManager().getPlugin("Citizens").isEnabled()) {
-            getLogger().warning("Citizens non détecté ou désactivé. Les fonctionnalités NPC seront limitées.");
-        }
+        File exportFolder = new File(getDataFolder(), "exports");
+        if (!exportFolder.exists()) exportFolder.mkdirs();
 
         instance = this;
 
@@ -53,15 +53,14 @@ public final class DailyShopPlugin extends JavaPlugin {
         this.npcManager  = new NPCManager(this);  // **d'abord** NPCManager
         this.shopManager = new ShopManager(this); // puis ShopManager
         this.menuManager = new MenuManager(this);
-        this.sellManager = new SellManager();
+        this.sellManager = new SellManager(this, getEconomy());
+        this.statsManager = new StatsManager(exportFolder);
 
         // ─────── Configuration des aliases ───────
         initAliases();
 
         // ─────── Listener pour CitizensReady ───────
-        if (Bukkit.getPluginManager().getPlugin("Citizens") != null) {
-            Bukkit.getPluginManager().registerEvents(new FancyNpcsReadyListener(this), this);
-        }
+        Bukkit.getPluginManager().registerEvents(new FancyNpcsReadyListener(this), this);
 
         // ─────── Enregistrement des commandes ───────
         registerCommands();
@@ -115,7 +114,7 @@ public final class DailyShopPlugin extends JavaPlugin {
         new ShopRotationTask(this).schedule();
         new MenuClickListener(this);
         new TomorrowItemListener(this);
-        new SellChestListener(this, economy);
+        new SellChestListener(this);
     }
 
     private void loadShopsFile() {
@@ -148,4 +147,5 @@ public final class DailyShopPlugin extends JavaPlugin {
     public Economy getEconomy() {
         return economy;
     }
+    public StatsManager getStatsManager() {return statsManager;}
 }

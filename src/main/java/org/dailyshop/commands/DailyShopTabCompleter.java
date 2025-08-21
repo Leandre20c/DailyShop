@@ -10,7 +10,7 @@ import java.util.List;
 
 public class DailyShopTabCompleter implements TabCompleter {
 
-    private static final List<String> SUBCOMMANDS = List.of("open", "menu", "giveitem", "reload", "rotate", "preview");
+    private static final List<String> SUBCOMMANDS = List.of("open", "menu", "giveitem", "reload", "rotate", "preview", "exportstats");
     private static final List<String> GIVEITEM_ARGS = List.of("sell");
 
     @Override

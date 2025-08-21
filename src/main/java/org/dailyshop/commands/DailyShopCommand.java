@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.dailyshop.DailyShopPlugin;
 import org.dailyshop.model.Shop;
 
+import java.io.File;
+
 public class DailyShopCommand implements CommandExecutor {
 
     private final DailyShopPlugin plugin;
@@ -19,7 +21,7 @@ public class DailyShopCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§e/dailyshop <open|menu|giveitem|reload|rotate>");
+            sender.sendMessage("§e/dailyshop <open|menu|giveitem|reload|rotate|preview|exportstats>");
             return true;
         }
 
@@ -35,10 +37,18 @@ public class DailyShopCommand implements CommandExecutor {
                     player.sendMessage("§cLe shop du jour n’est pas disponible.");
                     return true;
                 }
-                plugin.getMenuManager().openShopMenu(player, shop);
+                plugin.getMenuManager().openShopMenu(player, shop, false);
             }
 
             case "menu" -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("§cCommande réservée aux joueurs.");
+                    return true;
+                }
+                plugin.getMenuManager().openAllShopsMenu(player);
+            }
+
+            case "itemlist" -> {
                 if (!(sender instanceof Player player)) {
                     sender.sendMessage("§cCommande réservée aux joueurs.");
                     return true;
@@ -139,8 +149,59 @@ public class DailyShopCommand implements CommandExecutor {
                     return true;
                 }
 
-                plugin.getMenuManager().openShopMenu(player, next);
+                plugin.getMenuManager().openShopMenu(player, next, false);
             }
+
+            case "exportstats" -> {
+                if (!sender.hasPermission("dailyshop.admin")) {
+                    sender.sendMessage("§cPermission refusée.");
+                    return true;
+                }
+
+                try {
+                    File exportFile = new File(plugin.getDataFolder(), "exports/sales.csv");
+                    plugin.getStatsManager().exportToCSV(exportFile);
+                    sender.sendMessage("§aStatistiques exportées vers : §e" + exportFile.getName());
+                } catch (Exception e) {
+                    sender.sendMessage("§cErreur lors de l’export : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            case "clearstats" -> {
+                if (!sender.hasPermission("dailyshop.admin")) {
+                    sender.sendMessage("§cPermission refusée.");
+                    return true;
+                }
+
+                plugin.getStatsManager().clearAll();
+                sender.sendMessage("§aToutes les ventes ont été supprimées (sales.json).");
+            }
+
+            case "archivestats" -> {
+                if (!sender.hasPermission("dailyshop.admin")) {
+                    sender.sendMessage("§cPermission refusée.");
+                    return true;
+                }
+
+                try {
+                    File folder = new File(plugin.getDataFolder(), "exports");
+                    if (!folder.exists()) folder.mkdirs();
+
+                    String filename = "sales_" + new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
+                            .format(new java.util.Date()) + ".csv";
+                    File file = new File(folder, filename);
+
+                    plugin.getStatsManager().exportToCSV(file);
+                    plugin.getStatsManager().clearAll();
+
+                    sender.sendMessage("§aLes ventes ont été archivées dans §e" + file.getName() + "§a.");
+                } catch (Exception e) {
+                    sender.sendMessage("§cErreur lors de l’archivage : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
 
             default -> sender.sendMessage("§cCommande inconnue.");
         }

@@ -110,10 +110,11 @@ public class SellCommand implements CommandExecutor {
 
         double totalMoney = plugin.getSellManager().calculateTotal(sold);
         if (totalMoney > 0) {
-            economy.depositPlayer(player, totalMoney);
-            player.sendMessage("§aVous avez vendu pour §e" + totalMoney + " $");
-        } else {
-            player.sendMessage("§cAucun item vendable trouvé.");
+            if (!sold.isEmpty()) {
+                plugin.getSellManager().payAndRecord(player, sold);
+            } else {
+                player.sendMessage("§cAucun item vendable trouvé.");
+            }
         }
 
         return true;

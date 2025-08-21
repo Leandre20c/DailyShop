@@ -4,12 +4,15 @@ main: org.dailyshop.DailyShopPlugin
 api-version: '1.21'
 authors: [ Ouistitiw ]
 description: A daily shop system with rotating NPC merchants
+depend: [SimpleSkills]
 
 commands:
   dailyshop:
     description: Commande principale regroupant toutes les fonctionnalités
     usage: /<command> <open|menu|giveitem|reload|rotate>
     permission: dailyshop.use
+    aliases:
+      - ds
 
   sell:
     description: Vendre des objets du shop du jour

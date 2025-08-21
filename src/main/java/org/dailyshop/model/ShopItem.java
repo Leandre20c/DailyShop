@@ -3,6 +3,9 @@ package org.dailyshop.model;
 import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.dailyshop.utils.ItemGroups;
+
+import java.util.List;
 
 public class ShopItem {
     private final Material material;   // null si custom
@@ -24,16 +27,23 @@ public class ShopItem {
 
     /**
      * Retourne true si cet ItemStack correspond à ce ShopItem,
-     * que ce soit un vanilla ou un custom ItemsAdder.
+     * en tenant compte des variants (laine, froglight, etc.).
      */
     public boolean matches(ItemStack stack) {
         if (stack == null) return false;
+
         if (isCustom()) {
-            // ItemsAdder API
+            // custom ItemsAdder
             return ItemsAdder.isCustomItem(stack)
                     && ItemsAdder.matchCustomItemName(stack, customId);
         } else {
-            return stack.getType() == material;
+            Material clicked = stack.getType();
+            // 1) correspondance directe
+            if (clicked == material) return true;
+
+            // 2) correspondance via groupe de variants
+            List<Material> variants = ItemGroups.VARIANTS.get(material);
+            return variants != null && variants.contains(clicked);
         }
     }
 }

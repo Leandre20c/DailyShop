@@ -37,7 +37,7 @@ public class TomorrowItemListener implements Listener {
             return;
         }
 
-        DailyShopPlugin.getInstance().getMenuManager().openShopMenu(player, next);
+        DailyShopPlugin.getInstance().getMenuManager().openShopMenu(player, next, true);
 
         // ✅ Consomme l’item
         if (item.getAmount() > 1) {

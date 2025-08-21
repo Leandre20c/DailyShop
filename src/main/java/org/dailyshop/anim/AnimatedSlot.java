@@ -45,7 +45,7 @@ public class AnimatedSlot {
                     ? shopItem.getCustomId().split(":",2)[1]
                     : formatMaterialName(mat);
             meta.setDisplayName("§f" + display);
-            meta.setLore(List.of("§7Prix: §a" + shopItem.getPrice() + " $"));
+            meta.setLore(List.of("§7Prix: §a" + shopItem.getPrice() + " PE"));
             item.setItemMeta(meta);
         }
         return item;

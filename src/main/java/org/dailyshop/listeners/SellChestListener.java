@@ -2,35 +2,35 @@ package org.dailyshop.listeners;
 
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.dailyshop.DailyShopPlugin;
 import org.dailyshop.model.Shop;
+import org.dailyshop.model.ShopItem;
 import org.dailyshop.utils.SellChestItem;
+
+import java.util.Map;
 
 public class SellChestListener implements Listener {
 
     private final DailyShopPlugin plugin;
-    private final Economy economy;
 
-    public SellChestListener(DailyShopPlugin plugin, Economy economy) {
+    public SellChestListener(DailyShopPlugin plugin) {
         this.plugin = plugin;
-        this.economy = economy;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
     public void onRightClickChest(PlayerInteractEvent event) {
-        // clic-droit main uniquement
+        // clic-droit main principale uniquement
         if (event.getHand() != EquipmentSlot.HAND) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
@@ -41,43 +41,49 @@ public class SellChestListener implements Listener {
         ItemStack stick = player.getInventory().getItemInMainHand();
         if (!SellChestItem.isSellChestItem(stick)) return;
 
-        // Vérifier le claim GriefPrevention
-        Claim claim = GriefPrevention.instance.dataStore
-                .getClaimAt(clicked.getLocation(), false, null);
+        // Vérifie claim GriefPrevention
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(clicked.getLocation(), false, null);
         if (claim == null) {
             player.sendMessage("§cCe coffre n'est pas protégé – impossible de vendre ici.");
             return;
         }
-        // allowContainers vérifie propriétaire OU container-trust
-        String denialReason = claim.allowContainers(player);
-        if (denialReason != null) {
-            player.sendMessage("§cVous devez être propriétaire ou avoir la permission de container-trust ici.");
+
+        String denial = claim.allowContainers(player);
+        if (denial != null) {
+            player.sendMessage("§cVous devez être propriétaire ou avoir la permission container-trust ici.");
             return;
         }
 
         event.setCancelled(true);
 
+        // Shop actif uniquement
         Shop shop = plugin.getShopManager().getCurrentShop();
         if (shop == null) {
             player.sendMessage("§cAucun shop actif pour vendre.");
             return;
         }
 
-        double total = plugin.getSellManager().sellContainer(container.getInventory(), shop);
-        if (total <= 0) {
+        // Récupère les items vendables et leur quantité
+        Map<ShopItem, Integer> soldItems = plugin.getSellManager().collectSellableItems(container.getInventory(), shop);
+        if (soldItems.isEmpty()) {
             player.sendMessage("§eAucun item vendable dans ce coffre.");
             return;
         }
 
-        economy.depositPlayer(player, total);
-        player.sendMessage("§a+ " + total + " $ pour les items vendus dans ce coffre.");
+        // Paiement + enregistrement
+        plugin.getSellManager().payAndRecord(player, soldItems);
 
-        // gérer les utilisations du SellStick
+        // Feedback visuel
+        player.sendMessage("§aVous avez vendu les items de ce coffre avec votre §3SellStick§a !");
+        player.playSound(player.getLocation(), "minecraft:entity.player.levelup", 1f, 1.2f);
+
+        // Gérer les utilisations du SellStick
         int uses = SellChestItem.getRemainingUses(stick);
         if (uses > 1) {
             SellChestItem.decreaseUses(stick);
         } else {
             player.getInventory().setItemInMainHand(null);
+            player.sendMessage("§cVotre SellStick est usé !");
         }
     }
 }
